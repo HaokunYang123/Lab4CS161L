@@ -57,11 +57,13 @@ begin
 		`ALU_LESS_THAN : result = $signed(A) < $signed(B) ?  1 : 0;
 		
 		default : temp = { `WORD_SIZE {1'b0} } ; 
-	
+	//what is going on? Please do not close 
 	endcase
 
 	// Final results 
 	zero = (result == 0) ? 1 : 0; 
 end 
+//$2 = x56 $v0 = $2 $v1 = $3
+//$3 = x56*56 
 
 endmodule
