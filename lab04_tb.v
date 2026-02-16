@@ -1,11 +1,11 @@
 //=========================================================================
 // Name & Email must be EXACTLY as in Gradescope roster!
-// Name: 
-// Email: 
+// Name: Haokun Yang
+// Email: hyang243@ucr.edu
 // 
-// Assignment name: 
+// Assignment name: Lab 4
 // Lab section: 
-// TA: 
+// TA: Professor Knight
 // 
 // I hereby certify that I have not received assistance on this assignment,
 // or used code, from ANY outside source other than the instruction team
