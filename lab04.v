@@ -416,3 +416,188 @@ end  // End block
 
 endmodule
 
+
+module lab04 (
+  input clk,
+  input rst,
+  output [31:0] PC,
+  output [5:0] opcode,
+  output [4:0] src1_addr,
+  output [31:0] src1_out,
+  output [4:0] src2_addr,
+  output [31:0] src2_out,
+  output [4:0] dst_addr,
+  output [31:0] dst_data
+);
+  wire [31:0] s0;
+  wire [31:0] PC_temp;
+  wire [5:0] opcode_temp;
+  wire s1;
+  wire s2;
+  wire s3;
+  wire s4;
+  wire [1:0] s5;
+  wire s6;
+  wire s7;
+  wire s8;
+  wire [4:0] src1_addr_temp;
+  wire [4:0] src2_addr_temp;
+  wire [4:0] dst_addr_temp;
+  wire [31:0] dst_data_temp;
+  wire [31:0] src1_out_temp;
+  wire [31:0] src2_out_temp;
+  wire [15:0] s9;
+  wire [31:0] s10;
+  wire [4:0] s11;
+  wire [5:0] s12;
+  wire [3:0] s13;
+  wire [31:0] s14;
+  wire s15;
+  wire [31:0] s16;
+  wire [31:0] s17;
+  wire [31:0] s18;
+  wire s19;
+  wire [31:0] s20;
+  wire [31:0] s21;
+  wire [7:0] s22;
+  wire [7:0] s23;
+  wire [31:0] s24;
+  // gen_register
+  gen_register gen_register_i0 (
+    .clk( clk ),
+    .rst( rst ),
+    .write_en( clk ),
+    .data_in( s0 ),
+    .data_out( PC_temp )
+  );
+  // cpu_registers
+  cpu_registers cpu_registers_i1 (
+    .clk( clk ),
+    .rst( rst ),
+    .write_en( s8 ),
+    .src1_addr( src1_addr_temp ),
+    .src2_addr( src2_addr_temp ),
+    .dst_addr( dst_addr_temp ),
+    .data_in( dst_data_temp ),
+    .src1_out( src1_out_temp ),
+    .src2_out( src2_out_temp )
+  );
+  // alu
+  alu alu_i2 (
+    .alu_control( 4'b10 ),
+    .A( PC_temp ),
+    .B( 32'b100 ),
+    .result( s18 )
+  );
+  assign s23 = PC_temp[9:2];
+  // alu
+  alu alu_i3 (
+    .alu_control( s13 ),
+    .A( src1_out_temp ),
+    .B( s14 ),
+    .zero( s15 ),
+    .result( s16 )
+  );
+  Mux_2x1_NBits #(
+    .Bits(32)
+  )
+  Mux_2x1_NBits_i4 (
+    .sel( s7 ),
+    .in_0( src2_out_temp ),
+    .in_1( s10 ),
+    .out( s14 )
+  );
+  Mux_2x1_NBits #(
+    .Bits(32)
+  )
+  Mux_2x1_NBits_i5 (
+    .sel( s19 ),
+    .in_0( s18 ),
+    .in_1( s20 ),
+    .out( s0 )
+  );
+  // alu
+  alu alu_i6 (
+    .alu_control( 4'b10 ),
+    .A( s18 ),
+    .B( s21 ),
+    .result( s20 )
+  );
+  // cpumemory
+  DIG_RAMDualAccess #(
+    .Bits(32),
+    .AddrBits(8)
+  )
+  DIG_RAMDualAccess_i7 (
+    .str( s6 ),
+    .C( clk ),
+    .ld( s3 ),
+    .\1A ( s22 ),
+    .\1Din ( src2_out_temp ),
+    .\2A ( s23 ),
+    .\1D ( s17 ),
+    .\2D ( s24 )
+  );
+  assign opcode_temp = s24[31:26];
+  assign src1_addr_temp = s24[25:21];
+  assign src2_addr_temp = s24[20:16];
+  assign s11 = s24[15:11];
+  assign s9 = s24[15:0];
+  assign s22 = s16[7:0];
+  // control_unit
+  control_unit control_unit_i8 (
+    .instr_op( opcode_temp ),
+    .reg_dst( s1 ),
+    .branch( s2 ),
+    .mem_read( s3 ),
+    .mem_to_reg( s4 ),
+    .alu_op( s5 ),
+    .mem_write( s6 ),
+    .alu_src( s7 ),
+    .reg_write( s8 )
+  );
+  DIG_BitExtender #(
+    .inputBits(16),
+    .outputBits(32)
+  )
+  DIG_BitExtender_i9 (
+    .in( s9 ),
+    .out( s10 )
+  );
+  assign s12 = s9[5:0];
+  Mux_2x1_NBits #(
+    .Bits(5)
+  )
+  Mux_2x1_NBits_i10 (
+    .sel( s1 ),
+    .in_0( src2_addr_temp ),
+    .in_1( s11 ),
+    .out( dst_addr_temp )
+  );
+  // alu_control
+  alu_control alu_control_i11 (
+    .alu_op( s5 ),
+    .funct( s12 ),
+    .alu_control( s13 )
+  );
+  Mux_2x1_NBits #(
+    .Bits(32)
+  )
+  Mux_2x1_NBits_i12 (
+    .sel( s4 ),
+    .in_0( s16 ),
+    .in_1( s17 ),
+    .out( dst_data_temp )
+  );
+  assign s19 = (s2 & s15);
+  assign s21[31:2] = s10[29:0];
+  assign s21[1:0] = 2'b0;
+  assign PC = PC_temp;
+  assign opcode = opcode_temp;
+  assign src1_addr = src1_addr_temp;
+  assign src1_out = src1_out_temp;
+  assign src2_addr = src2_addr_temp;
+  assign src2_out = src2_out_temp;
+  assign dst_addr = dst_addr_temp;
+  assign dst_data = dst_data_temp;
+endmodule
